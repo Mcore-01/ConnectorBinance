@@ -1,42 +1,57 @@
-﻿using TestTrade.Interfaces;
+﻿using Newtonsoft.Json;
+using TestTrade.Interfaces;
 using TestTrade.Models;
 
-namespace TestTrade
+namespace TestTrade;
+
+public class ConnectorBinance : ITestConnector
 {
-    public class ConnectorBinance : ITestConnector
+    public event Action<Trade> NewBuyTrade = null!;
+    public event Action<Trade> NewSellTrade = null!;
+    public event Action<Candle> CandleSeriesProcessing = null!;
+   
+
+    public async Task<IEnumerable<Trade>> GetNewTradesAsync(string pair, int maxCount)
     {
-        public event Action<Trade> NewBuyTrade;
-        public event Action<Trade> NewSellTrade;
-        public event Action<Candle> CandleSeriesProcessing;
-
-        public Task<IEnumerable<Candle>> GetCandleSeriesAsync(string pair, int periodInSec, DateTimeOffset? from, DateTimeOffset? to = null, long? count = 0)
+        using (HttpClient httpClient = new HttpClient())
         {
-            throw new NotImplementedException();
-        }
+            var response = await httpClient.GetAsync($"https://api.binance.com/api/v3/trades?symbol={pair}&limit={maxCount}");
 
-        public Task<IEnumerable<Trade>> GetNewTradesAsync(string pair, int maxCount)
-        {
-            throw new NotImplementedException();
-        }
+            var content = await response.Content.ReadAsStringAsync();
 
-        public void SubscribeCandles(string pair, int periodInSec, DateTimeOffset? from = null, DateTimeOffset? to = null, long? count = 0)
-        {
-            throw new NotImplementedException();
-        }
+            var trades = JsonConvert.DeserializeObject<List<Trade>>(content);
 
-        public void SubscribeTrades(string pair, int maxCount = 100)
-        {
-            throw new NotImplementedException();
-        }
+            foreach (var trade in trades)
+            {
+                trade.Pair = pair;
+            }
 
-        public void UnsubscribeCandles(string pair)
-        {
-            throw new NotImplementedException();
+            return trades;
         }
+    }
 
-        public void UnsubscribeTrades(string pair)
-        {
-            throw new NotImplementedException();
-        }
+    public Task<IEnumerable<Candle>> GetCandleSeriesAsync(string pair, int periodInSec, DateTimeOffset? from, DateTimeOffset? to = null, long? count = 0)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SubscribeCandles(string pair, int periodInSec, DateTimeOffset? from = null, DateTimeOffset? to = null, long? count = 0)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SubscribeTrades(string pair, int maxCount = 100)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UnsubscribeCandles(string pair)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UnsubscribeTrades(string pair)
+    {
+        throw new NotImplementedException();
     }
 }

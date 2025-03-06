@@ -1,4 +1,7 @@
-﻿namespace TestTrade.Models;
+﻿using Newtonsoft.Json;
+using TestTrade.Utilities;
+
+namespace TestTrade.Models;
 
 public class Trade
 {
@@ -15,22 +18,23 @@ public class Trade
     /// <summary>
     /// Объем трейда
     /// </summary>
+    [JsonProperty("qty")]
     public decimal Amount { get; set; }
 
     /// <summary>
     /// Направление (buy/sell)
     /// </summary>
+    [JsonProperty("isBuyerMaker")]
     public string Side { get; set; }
 
     /// <summary>
     /// Время трейда
     /// </summary>
+    [JsonConverter(typeof(UnixTimeToDateTimeOffSetConvertor))]
     public DateTimeOffset Time { get; set; }
-
 
     /// <summary>
     /// Id трейда
     /// </summary>
     public string Id { get; set; }
-
 }

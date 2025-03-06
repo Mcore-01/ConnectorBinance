@@ -42,5 +42,4 @@ public class Candle
     /// Время
     /// </summary>
     public DateTimeOffset OpenTime { get; set; }
-
 }
