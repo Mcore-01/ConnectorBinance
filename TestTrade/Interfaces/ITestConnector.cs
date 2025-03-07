@@ -1,4 +1,5 @@
-﻿using TestTrade.Models;
+﻿using TestTrade.Enums;
+using TestTrade.Models;
 
 namespace TestTrade.Interfaces;
 
@@ -7,7 +8,7 @@ interface ITestConnector
     #region Rest
 
     Task<IEnumerable<Trade>> GetNewTradesAsync(string pair, int maxCount);
-    Task<IEnumerable<Candle>> GetCandleSeriesAsync(string pair, int periodInSec, DateTimeOffset? from, DateTimeOffset? to = null, long? count = 0);
+    Task<IEnumerable<Candle>> GetCandleSeriesAsync(string pair, TimeInterval interval, DateTimeOffset? from, DateTimeOffset? to = null, long? count = 0);
 
     #endregion
 
@@ -20,7 +21,7 @@ interface ITestConnector
     void UnsubscribeTrades(string pair);
 
     event Action<Candle> CandleSeriesProcessing;
-    void SubscribeCandles(string pair, int periodInSec, DateTimeOffset? from = null, DateTimeOffset? to = null, long? count = 0);
+    void SubscribeCandles(string pair, TimeInterval interval, DateTimeOffset? from = null, DateTimeOffset? to = null, long? count = 0);
     void UnsubscribeCandles(string pair);
 
     #endregion
