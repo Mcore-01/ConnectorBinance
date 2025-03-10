@@ -5,6 +5,7 @@ using TestTrade.Enums;
 using TestTrade.Interfaces;
 using TestTrade.Models;
 using TestTrade.ResponseModels;
+using TestTrade.Extensions;
 
 namespace TestTrade;
 
@@ -48,7 +49,7 @@ public class ConnectorBinance : ITestConnector
 
     public async Task<IEnumerable<Candle>> GetCandleSeriesAsync(string pair, TimeInterval interval, DateTimeOffset? from, DateTimeOffset? to = null, long? count = 0)
     {
-        string uri = $"klines?symbol={pair}&interval={ToStringInterval(interval)}&limit={count}";
+        string uri = $"klines?symbol={pair}&interval={interval.ToStringInterval()}&limit={count}";
 
         if (from is not null)
             uri += $"&startTime={(long)(from.Value - DateTime.UnixEpoch).TotalMilliseconds}";
@@ -94,31 +95,6 @@ public class ConnectorBinance : ITestConnector
 
         return currentCandle;
     }
-
-    public static string ToStringInterval(TimeInterval interval)
-    {
-        return interval switch
-        {
-            TimeInterval.OneSecond => "1s",
-            TimeInterval.OneMinute => "1m",
-            TimeInterval.ThreeMinutes => "3m",
-            TimeInterval.FiveMinutes => "5m",
-            TimeInterval.FifteenMinutes => "15m",
-            TimeInterval.ThirtyMinutes => "30m",
-            TimeInterval.OneHour => "1h",
-            TimeInterval.TwoHours => "2h",
-            TimeInterval.FourHours => "4h",
-            TimeInterval.SixHours => "6h",
-            TimeInterval.EightHours => "8h",
-            TimeInterval.TwelveHours => "12h",
-            TimeInterval.OneDay => "1d",
-            TimeInterval.ThreeDays => "3d",
-            TimeInterval.OneWeek => "1w",
-            TimeInterval.OneMonth => "1M",
-            _ => "1s"
-        };
-    }
-
 
     public event Action<Trade> NewBuyTrade;
     public event Action<Trade> NewSellTrade;
@@ -221,7 +197,7 @@ public class ConnectorBinance : ITestConnector
         var data = new
         {
             method = "SUBSCRIBE",
-            @params = new string[] { $"{pair.ToLower()}@kline_{ToStringInterval(interval)}" },
+            @params = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" },
             id = messageId++,
         };
 
@@ -235,7 +211,7 @@ public class ConnectorBinance : ITestConnector
         var data = new
         {
             method = "UNSUBSCRIBE",
-            @params = new string[] { $"{pair.ToLower()}@kline_{ToStringInterval(interval)}" },
+            @params = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" },
             id = messageId++,
         };
 
