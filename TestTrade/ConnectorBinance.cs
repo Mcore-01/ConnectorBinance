@@ -22,7 +22,7 @@ public class ConnectorBinance : ITestConnector
         _httpClient.BaseAddress = new Uri("https://api.binance.com/api/v3/");
 
         _webSocket = new WebSocket("wss://stream.binance.com:443/ws");
-        _webSocket.OnMessage += OnMessage;
+        _webSocket.OnMessage += OnMessage; ;
         _webSocket.Connect();
     }
 
@@ -99,7 +99,7 @@ public class ConnectorBinance : ITestConnector
     public event Action<Trade> NewBuyTrade;
     public event Action<Trade> NewSellTrade;
     
-    private void OnMessage(object sender, MessageEventArgs e)
+    private void OnMessage(object? sender, MessageEventArgs e)
     {
         string data = e.Data;
 
@@ -164,57 +164,42 @@ public class ConnectorBinance : ITestConnector
 
     public void SubscribeTrades(string pair)
     {
-        var data = new
-        {
-            method = "SUBSCRIBE",
-            @params = new string[] { $"{pair.ToLower()}@trade" },
-            id = messageId++,
-        };
+        var parameters = new string[] { $"{pair.ToLower()}@trade" };
 
-        var dataJson = JsonConvert.SerializeObject(data);
-
-        _webSocket.Send(dataJson);
+        SentMessageWebSocket("SUBSCRIBE", parameters, messageId++);
     }
 
     public void UnsubscribeTrades(string pair)
     {
-        var data = new
-        {
-            method = "UNSUBSCRIBE",
-            @params = new string[] { $"{pair.ToLower()}@trade" },
-            id = messageId++,
-        };
+        var parameters = new string[] { $"{pair.ToLower()}@trade" };
 
-        var dataJson = JsonConvert.SerializeObject(data);
-
-        _webSocket.Send(dataJson);
+        SentMessageWebSocket("UNSUBSCRIBE", parameters, messageId++);
     }
 
     public event Action<Candle> CandleSeriesProcessing;
 
     public void SubscribeCandles(string pair, TimeInterval interval)
     {
-        var data = new
-        {
-            method = "SUBSCRIBE",
-            @params = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" },
-            id = messageId++,
-        };
+        var parameters = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" };
 
-        var dataJson = JsonConvert.SerializeObject(data);
-
-        _webSocket.Send(dataJson);
+        SentMessageWebSocket("SUBSCRIBE", parameters, messageId++);
     }
 
     public void UnsubscribeCandles(string pair, TimeInterval interval)
     {
+        var parameters = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" };
+
+        SentMessageWebSocket("UNSUBSCRIBE", parameters, messageId++);
+    }
+
+    private void SentMessageWebSocket(string method, string[] parameters, int id)
+    {
         var data = new
         {
-            method = "UNSUBSCRIBE",
-            @params = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" },
-            id = messageId++,
+            method = method,
+            @params = parameters,
+            id = id,
         };
-
         var dataJson = JsonConvert.SerializeObject(data);
 
         _webSocket.Send(dataJson);
