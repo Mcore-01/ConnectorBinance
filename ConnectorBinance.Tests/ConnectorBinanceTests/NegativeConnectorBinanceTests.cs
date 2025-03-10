@@ -23,7 +23,7 @@ public class NegativeConnectorBinanceTests
     }
 
     [Fact]
-    public async Task ValidData_ReceivingCandles_ReturnCorrectCandleRecords()
+    public async Task IncorrectPair_ReceivingCandles_Exception()
     {
         var connector = new ConnectorBinance();
         var from = DateTime.UnixEpoch.AddMicroseconds(1741352922000);

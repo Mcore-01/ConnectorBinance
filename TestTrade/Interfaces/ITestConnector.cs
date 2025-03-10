@@ -17,12 +17,12 @@ interface ITestConnector
 
     event Action<Trade> NewBuyTrade;
     event Action<Trade> NewSellTrade;
-    void SubscribeTrades(string pair, int maxCount = 100);
+    void SubscribeTrades(string pair);
     void UnsubscribeTrades(string pair);
 
     event Action<Candle> CandleSeriesProcessing;
-    void SubscribeCandles(string pair, TimeInterval interval, DateTimeOffset? from = null, DateTimeOffset? to = null, long? count = 0);
-    void UnsubscribeCandles(string pair);
+    void SubscribeCandles(string pair, TimeInterval interval);
+    void UnsubscribeCandles(string pair, TimeInterval interval);
 
     #endregion
 }

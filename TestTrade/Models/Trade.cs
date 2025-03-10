@@ -37,4 +37,9 @@ public class Trade
     /// Id трейда
     /// </summary>
     public string Id { get; set; }
+
+    public override string ToString()
+    {
+        return $"Id: {Id}, Pair: {Pair}, Price: {Price}, Amount: {Amount}, Side: {Side}, Time: {Time.ToString()}";
+    }
 }
