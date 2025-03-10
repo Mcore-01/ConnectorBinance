@@ -23,7 +23,6 @@ public class ConnectorBinance : ITestConnector
 
         _webSocket = new WebSocket("wss://stream.binance.com:443/ws");
         _webSocket.OnMessage += OnMessage; ;
-        _webSocket.Connect();
     }
 
     public async Task<IEnumerable<Trade>> GetNewTradesAsync(string pair, int maxCount)
@@ -164,6 +163,11 @@ public class ConnectorBinance : ITestConnector
 
     public void SubscribeTrades(string pair)
     {
+        if (!_webSocket.IsAlive)
+        {
+            _webSocket.Connect();
+        }
+
         var parameters = new string[] { $"{pair.ToLower()}@trade" };
 
         SentMessageWebSocket("SUBSCRIBE", parameters, messageId++);
@@ -180,6 +184,11 @@ public class ConnectorBinance : ITestConnector
 
     public void SubscribeCandles(string pair, TimeInterval interval)
     {
+        if (!_webSocket.IsAlive)
+        {
+            _webSocket.Connect();
+        }
+
         var parameters = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" };
 
         SentMessageWebSocket("SUBSCRIBE", parameters, messageId++);
