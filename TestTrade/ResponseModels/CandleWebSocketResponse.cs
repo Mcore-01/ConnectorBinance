@@ -2,7 +2,7 @@
 
 namespace TestTrade.ResponseModels;
 
-public class CandleResponse
+public class CandleWebSocketResponse
 {
     [JsonProperty("e")]
     public string EventType { get; set; }

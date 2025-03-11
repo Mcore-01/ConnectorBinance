@@ -2,7 +2,7 @@
 
 namespace TestTrade.ResponseModels;
 
-public class TradeResponse
+public class TradeWebSocketResponse
 {
     [JsonProperty("e")]
     public string EventType { get; set; }

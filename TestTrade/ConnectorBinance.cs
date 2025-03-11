@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
-using System.Globalization;
 using WebSocketSharp;
 using TestTrade.Enums;
 using TestTrade.Interfaces;
 using TestTrade.Models;
 using TestTrade.ResponseModels;
 using TestTrade.Extensions;
+using System.Text;
 
 namespace TestTrade;
 
@@ -25,74 +25,61 @@ public class ConnectorBinance : ITestConnector
         _webSocket.OnMessage += OnMessage; ;
     }
 
+    /// /// <summary>
+    /// Retrieves the latest trade data for a currency pair.
+    /// </summary>
+    /// <param name="pair">The currency pair.</param>
+    /// <param name="maxCount">The number of trades.</param>
+    /// <returns>A list of the latest trades.</returns>
+    /// <exception cref="HttpRequestException">Thrown if invalid parameters are provided or the API is unresponsive.</exception>
+    /// <exception cref="JsonException">Thrown if the API returns null.</exception>
     public async Task<IEnumerable<Trade>> GetNewTradesAsync(string pair, int maxCount)
     {
         var response = await _httpClient.GetAsync($"trades?symbol={pair}&limit={maxCount}");
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new HttpRequestException($"Http error with code: {response.StatusCode}");
-        }
+        response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
 
-        var trades = JsonConvert.DeserializeObject<List<Trade>>(content);
+        var tradesResponse = JsonConvert.DeserializeObject<List<TradeRestResponse>>(content)
+            ?? throw new JsonException("Failed to deserialize tradesResponse");
 
-        foreach (var trade in trades)
-        {
-            trade.Pair = pair;
-        }
-
-        return trades;
+        return tradesResponse.Select(trade => trade.ConvertToTrade(pair));
     }
 
+    /// <summary>
+    /// Retrieves candlestick data based on the specified parameters.
+    /// </summary>
+    /// <param name="pair">The currency pair.</param>
+    /// <param name="interval">The candlestick interval.</param>
+    /// <param name="from">The start time of the candlesticks.</param>
+    /// <param name="to">The end time of the candlesticks.</param>
+    /// <param name="count">The number of candlesticks.</param>
+    /// <returns>A list of candlesticks based on the specified parameters.</returns>
+    /// <exception cref="HttpRequestException">Thrown if invalid parameters are provided or the API is unresponsive.</exception>
+    /// <exception cref="JsonException">Thrown if the API returns null.</exception>
+    /// /// <exception cref="InvalidCastException">Thrown if the API returns invalid data.</exception>
     public async Task<IEnumerable<Candle>> GetCandleSeriesAsync(string pair, TimeInterval interval, DateTimeOffset? from, DateTimeOffset? to = null, long? count = 0)
     {
-        string uri = $"klines?symbol={pair}&interval={interval.ToStringInterval()}&limit={count}";
-
+        var uri = new StringBuilder();
+        uri.Append($"klines?symbol={pair}&interval={interval.ToStringInterval()}&limit={count}");
         if (from is not null)
-            uri += $"&startTime={(long)(from.Value - DateTime.UnixEpoch).TotalMilliseconds}";
+            uri.Append($"&startTime={(long)(from.Value - DateTime.UnixEpoch).TotalMilliseconds}");
         if (to is not null)
-            uri += $"&endTime={(long)(to.Value - DateTime.UnixEpoch).TotalMilliseconds}";
+            uri.Append($"&endTime={(long)(to.Value - DateTime.UnixEpoch).TotalMilliseconds}");
 
 
-        var response = await _httpClient.GetAsync(uri);
+        var response = await _httpClient.GetAsync(uri.ToString());
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new HttpRequestException($"Http error with code: {response.StatusCode}");
-        }
+        response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
 
-        var candlesObj = JsonConvert.DeserializeObject<List<List<object>>>(content);
-        var candles = new List<Candle>();
+        var candlesResponse = JsonConvert.DeserializeObject<List<List<object>>>(content) 
+            ?? throw new JsonException("Failed to deserialize candleResponse");
 
-        foreach (var candleObj in candlesObj)
-        {
-            Candle currentCandle = CreateNewCandle(pair, candleObj);
-
-            candles.Add(currentCandle);
-        }
-
-        return candles;
-    }
-
-    private static Candle CreateNewCandle(string pair, List<object> candleObj)
-    {
-        var currentCandle = new Candle()
-        {
-            Pair = pair,
-            OpenPrice = Convert.ToDecimal(candleObj[1], CultureInfo.InvariantCulture),
-            HighPrice = Convert.ToDecimal(candleObj[2], CultureInfo.InvariantCulture),
-            LowPrice = Convert.ToDecimal(candleObj[3], CultureInfo.InvariantCulture),
-            ClosePrice = Convert.ToDecimal(candleObj[4], CultureInfo.InvariantCulture),
-            TotalPrice = Convert.ToDecimal(candleObj[7], CultureInfo.InvariantCulture),
-            TotalVolume = Convert.ToDecimal(candleObj[5], CultureInfo.InvariantCulture),
-            OpenTime = DateTime.UnixEpoch.AddMilliseconds((long)candleObj[0]),
-        };
-
-        return currentCandle;
+        return candlesResponse
+            .Select(arr => CandleRestResponse.CreateCandleRestResponse(arr).ConvertToCandle(pair));
     }
 
     public event Action<Trade> NewBuyTrade;
@@ -108,7 +95,7 @@ public class ConnectorBinance : ITestConnector
 
         if (data.Contains("kline")) 
         {
-            var candleResponse = JsonConvert.DeserializeObject<CandleResponse>(data);
+            var candleResponse = JsonConvert.DeserializeObject<CandleWebSocketResponse>(data);
 
             var candle = CreateCandle(candleResponse);
 
@@ -117,7 +104,7 @@ public class ConnectorBinance : ITestConnector
 
         if (data.Contains("trade"))
         {
-            var tradeResponse = JsonConvert.DeserializeObject<TradeResponse>(data);
+            var tradeResponse = JsonConvert.DeserializeObject<TradeWebSocketResponse>(data);
 
             var trade = CreateTrade(tradeResponse);
 
@@ -131,7 +118,7 @@ public class ConnectorBinance : ITestConnector
         }
     }
 
-    private Trade CreateTrade(TradeResponse tradeResponse)
+    private Trade CreateTrade(TradeWebSocketResponse tradeResponse)
     {
         return new Trade()
         {
@@ -144,7 +131,7 @@ public class ConnectorBinance : ITestConnector
         };
     }
 
-    private Candle CreateCandle(CandleResponse candleResponse)
+    private Candle CreateCandle(CandleWebSocketResponse candleResponse)
     {
         var candleData = candleResponse.Candle;
 
