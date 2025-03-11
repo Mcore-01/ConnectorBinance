@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using TestTrade.Models;
 
 namespace TestTrade.ResponseModels;
 
@@ -30,4 +31,22 @@ public class TradeWebSocketResponse
 
     [JsonProperty("M")]
     public string Ignore { get; set; }
+
+    public DateTimeOffset GetEventTimeAsDateTimeOffset()
+    {
+        return DateTime.UnixEpoch.AddMilliseconds(EventTime);
+    }
+
+    public Trade ConvertToTrade()
+    {
+        return new Trade()
+        {
+            Id = TradeId,
+            Pair = Symbol,
+            Price = Price,
+            Amount = Quantity,
+            Side = IsBuyerMaker,
+            Time = GetEventTimeAsDateTimeOffset(),
+        };
+    }
 }

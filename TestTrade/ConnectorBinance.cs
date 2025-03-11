@@ -22,7 +22,7 @@ public class ConnectorBinance : ITestConnector
         _httpClient.BaseAddress = new Uri("https://api.binance.com/api/v3/");
 
         _webSocket = new WebSocket("wss://stream.binance.com:443/ws");
-        _webSocket.OnMessage += OnMessage; ;
+        _webSocket.OnMessage += OnMessage; 
     }
 
     /// /// <summary>
@@ -82,72 +82,54 @@ public class ConnectorBinance : ITestConnector
             .Select(arr => CandleRestResponse.CreateCandleRestResponse(arr).ConvertToCandle(pair));
     }
 
+    /// <summary>
+    /// Event triggered when purchasing the subscribed currency.
+    /// </summary>
     public event Action<Trade> NewBuyTrade;
+    /// <summary>
+    /// Event triggered when selling the subscribed currency.
+    /// </summary>
     public event Action<Trade> NewSellTrade;
     
     private void OnMessage(object? sender, MessageEventArgs e)
     {
-        string data = e.Data;
-
-        if (string.IsNullOrEmpty(data)) {
+        string messageWSData = e.Data;
+        
+        if (string.IsNullOrEmpty(messageWSData))
             return;
-        }
 
-        if (data.Contains("kline")) 
+        if (messageWSData.Contains("kline")) 
         {
-            var candleResponse = JsonConvert.DeserializeObject<CandleWebSocketResponse>(data);
+            var candleResponse = JsonConvert.DeserializeObject<CandleWebSocketResponse>(messageWSData);
 
-            var candle = CreateCandle(candleResponse);
+            if (candleResponse is null)
+                return;
+
+            var candle = candleResponse.ConvertToCandle();
 
             CandleSeriesProcessing?.Invoke(candle);
         }
 
-        if (data.Contains("trade"))
+        if (messageWSData.Contains("trade"))
         {
-            var tradeResponse = JsonConvert.DeserializeObject<TradeWebSocketResponse>(data);
+            var tradeResponse = JsonConvert.DeserializeObject<TradeWebSocketResponse>(messageWSData);
 
-            var trade = CreateTrade(tradeResponse);
+            if (tradeResponse is null)
+                return;
+
+            var trade = tradeResponse.ConvertToTrade();
 
             if (trade.Side == "True")
-            {
                 NewSellTrade?.Invoke(trade);
-                return;
-            }
-
-            NewBuyTrade?.Invoke(trade);
+            else 
+                NewBuyTrade?.Invoke(trade);
         }
     }
 
-    private Trade CreateTrade(TradeWebSocketResponse tradeResponse)
-    {
-        return new Trade()
-        {
-            Id = tradeResponse.TradeId,
-            Pair = tradeResponse.Symbol,
-            Price = tradeResponse.Price,
-            Amount = tradeResponse.Quantity,
-            Side = tradeResponse.IsBuyerMaker,
-            Time = DateTime.UnixEpoch.AddMilliseconds(tradeResponse.EventTime),
-        };
-    }
-
-    private Candle CreateCandle(CandleWebSocketResponse candleResponse)
-    {
-        var candleData = candleResponse.Candle;
-
-        return new Candle()
-        {
-            Pair = candleResponse.Symbol,
-            OpenPrice = candleData.OpenPrice,
-            HighPrice = candleData.HighPrice,
-            LowPrice = candleData.LowPrice,
-            ClosePrice = candleData.ClosePrice,
-            TotalPrice = candleData.QuoteAssetVolume,
-            TotalVolume = candleData.Volume,
-            OpenTime = DateTime.UnixEpoch.AddMilliseconds(candleData.OpenTime),
-        };
-    }
-
+    /// <summary>
+    /// Subscribes to trades for the specified currency pair.
+    /// </summary>
+    /// <param name="pair">The currency pair.</param>
     public void SubscribeTrades(string pair)
     {
         if (!_webSocket.IsAlive)
@@ -160,6 +142,10 @@ public class ConnectorBinance : ITestConnector
         SentMessageWebSocket("SUBSCRIBE", parameters, messageId++);
     }
 
+    /// <summary>
+    /// Unsubscribes from trades for the specified currency pair.
+    /// </summary>
+    /// <param name="pair">The currency pair.</param>
     public void UnsubscribeTrades(string pair)
     {
         var parameters = new string[] { $"{pair.ToLower()}@trade" };
@@ -167,8 +153,16 @@ public class ConnectorBinance : ITestConnector
         SentMessageWebSocket("UNSUBSCRIBE", parameters, messageId++);
     }
 
+    /// <summary>
+    /// Triggered when new candlestick data is received from the API.
+    /// </summary>
     public event Action<Candle> CandleSeriesProcessing;
 
+    /// <summary>
+    /// Subscribes to candlestick updates for the specified currency pair with the given interval.
+    /// </summary>
+    /// <param name="pair">The currency pair.</param>
+    /// <param name="interval">The candlestick interval.</param>
     public void SubscribeCandles(string pair, TimeInterval interval)
     {
         if (!_webSocket.IsAlive)
@@ -181,6 +175,11 @@ public class ConnectorBinance : ITestConnector
         SentMessageWebSocket("SUBSCRIBE", parameters, messageId++);
     }
 
+    /// <summary>
+    /// Unsubscribes from candlestick updates for the specified currency pair with the given interval.
+    /// </summary>
+    /// <param name="pair">The currency pair.</param>
+    /// <param name="interval">The candlestick interval.</param>
     public void UnsubscribeCandles(string pair, TimeInterval interval)
     {
         var parameters = new string[] { $"{pair.ToLower()}@kline_{interval.ToStringInterval()}" };
