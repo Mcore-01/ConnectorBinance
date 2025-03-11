@@ -25,7 +25,7 @@ public class ConnectorBinance : ITestConnector
         _webSocket.OnMessage += OnMessage; 
     }
 
-    /// /// <summary>
+    /// <summary>
     /// Retrieves the latest trade data for a currency pair.
     /// </summary>
     /// <param name="pair">The currency pair.</param>
@@ -80,6 +80,27 @@ public class ConnectorBinance : ITestConnector
 
         return candlesResponse
             .Select(arr => CandleRestResponse.CreateCandleRestResponse(arr).ConvertToCandle(pair));
+    }
+
+    /// <summary>
+    /// Retrieves the latest tickers for a currency.
+    /// </summary>
+    /// <param name="currency">The currency.</param>
+    /// <returns>A list of the latest trades.</returns>
+    /// <exception cref="HttpRequestException">Thrown if invalid parameters are provided or the API is unresponsive.</exception>
+    /// <exception cref="JsonException">Thrown if the API returns null.</exception>
+    public async Task<IEnumerable<Ticker>> GetTickers(string currency)
+    {
+        var response = await _httpClient.GetAsync("ticker/price");
+
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var tickers = JsonConvert.DeserializeObject<List<Ticker>>(content)
+            ?? throw new JsonException("Failed to deserialize tickersResponse");
+
+        return tickers.Where(ticker => ticker.Symbol.Contains(currency));
     }
 
     /// <summary>

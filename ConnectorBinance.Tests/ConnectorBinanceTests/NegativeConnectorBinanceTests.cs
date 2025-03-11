@@ -30,4 +30,15 @@ public class NegativeConnectorBinanceTests
 
         await Assert.ThrowsAsync<HttpRequestException>(async () => await connector.GetCandleSeriesAsync("BTC1USDT", TimeInterval.OneHour, from, null, 5));
     }
+
+    [Fact]
+    public async Task FakeCurrency_ReceivingTickers_ReturnEmptyList()
+    {
+        var fakeCurrency = "AS132asDS";
+        var connector = new ConnectorBinance();
+
+        var tickers = await connector.GetTickers(fakeCurrency);
+
+        Assert.Empty(tickers);
+    }
 }
