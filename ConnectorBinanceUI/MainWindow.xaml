@@ -10,7 +10,7 @@
         <TabControl>
             <TabItem>
                 <TabItem.Header>
-                    <TextBlock>Трейды HTTP</TextBlock>
+                    <TextBlock>Трейды WS</TextBlock>
                 </TabItem.Header>
                 <TabItem.Content>
                     <Grid>
@@ -34,7 +34,6 @@
                         </DataGrid>
                         <StackPanel Grid.Column="1">
                             <TextBox Text="{Binding Pair, UpdateSourceTrigger=PropertyChanged}" Background="LightGray"></TextBox>
-                            <TextBox Text="{Binding MaxCount, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="TextBox_PreviewTextInput" Background="LightGray"></TextBox>
                             <Button Content="Загрузить данные" Command="{Binding GetTrades}" Background="Bisque"></Button>
                         </StackPanel>
                     </Grid>
@@ -42,7 +41,7 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <TextBlock>Свечи HTTP</TextBlock>
+                    <TextBlock>Свечи</TextBlock>
                 </TabItem.Header>
             </TabItem>
         </TabControl>

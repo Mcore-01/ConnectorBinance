@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TestTrade;
 using TestTrade.Models;
+using System.Windows;
 
 namespace ConnectorBinanceUI.ViewModel;
 
@@ -23,34 +24,25 @@ public class TradeViewModel : INotifyPropertyChanged
         }
     }
 
-    private int maxCount = 10;
-    public int MaxCount
-    {
-        get { return maxCount; }
-        set 
-        { 
-            maxCount = value;
-            OnPropertyChanged("MaxCount");
-        }
-    }
-
-
     private RelayCommand getTrades;
     public RelayCommand GetTrades
     {
         get
         {
             return getTrades ??
-              (getTrades = new RelayCommand(async obj =>
+              (getTrades = new RelayCommand(obj =>
               {
-                  var trades = await  _connectorBinance.GetNewTradesAsync(Pair, MaxCount);
-
-                  Trades.Clear();
-
-                  foreach (Trade trade in trades)
+                  _connectorBinance.NewBuyTrade += trade =>
                   {
-                      Trades.Add(trade);
-                  }
+                      Application.Current.Dispatcher.Invoke(() =>
+                      {
+                          if (Trades.Count > 10)
+                              Trades.RemoveAt(0);
+
+                          Trades.Add(trade);
+                      });
+                  };
+                  _connectorBinance.SubscribeTrades(Pair);
               }));
         }
     }
@@ -58,6 +50,7 @@ public class TradeViewModel : INotifyPropertyChanged
     public TradeViewModel()
     {
         _connectorBinance = new ConnectorBinance();
+        
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
