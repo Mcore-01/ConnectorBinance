@@ -18,7 +18,7 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="0.5*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <DataGrid ItemsSource="{Binding Trades}" 
+                        <DataGrid ItemsSource="{Binding TradeViewModel.Trades}" 
                                   Grid.Column="0"
                                   VerticalScrollBarVisibility="Visible"
                                   AutoGenerateColumns="False"
@@ -33,8 +33,9 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         <StackPanel Grid.Column="1">
-                            <TextBox Text="{Binding Pair, UpdateSourceTrigger=PropertyChanged}" Background="LightGray"></TextBox>
-                            <Button Content="Загрузить данные" Command="{Binding GetTrades}" Background="Bisque"></Button>
+                            <TextBox Text="{Binding TradeViewModel.Pair, UpdateSourceTrigger=PropertyChanged}" Background="LightGray"></TextBox>
+                            <Button Content="Subscribe trades" Command="{Binding TradeViewModel.SubscribeTrades}" Background="Bisque"></Button>
+                            <Button Content="Unsubscribe trades" Command="{Binding TradeViewModel.UnsubscribeTrades}" Background="Bisque"></Button>
                         </StackPanel>
                     </Grid>
                 </TabItem.Content>
@@ -43,6 +44,35 @@
                 <TabItem.Header>
                     <TextBlock>Свечи</TextBlock>
                 </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid ItemsSource="{Binding CandleViewModel.Candles}" 
+                  Grid.Column="0"
+                  VerticalScrollBarVisibility="Visible"
+                  AutoGenerateColumns="False"
+                  >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Pair" Binding="{Binding Pair}" Width="100"></DataGridTextColumn>
+                                <DataGridTextColumn Header="OpenPrice" Binding="{Binding OpenPrice}" Width="80"></DataGridTextColumn>
+                                <DataGridTextColumn Header="HighPrice" Binding="{Binding HighPrice}" Width="80"></DataGridTextColumn>
+                                <DataGridTextColumn Header="LowPrice" Binding="{Binding LowPrice}" Width="80"></DataGridTextColumn>
+                                <DataGridTextColumn Header="ClosePrice" Binding="{Binding ClosePrice}" Width="80"></DataGridTextColumn>
+                                <DataGridTextColumn Header="TotalPrice" Binding="{Binding TotalPrice}" Width="160"></DataGridTextColumn>
+                                <DataGridTextColumn Header="TotalVolume" Binding="{Binding TotalVolume}" Width="160"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel Grid.Column="1">
+                            <TextBox Text="{Binding CandleViewModel.Pair, UpdateSourceTrigger=PropertyChanged}" Background="LightGray"></TextBox>
+                            <ComboBox ItemsSource="{Binding CandleViewModel.TimeIntervals}" SelectedItem="{Binding CandleViewModel.SelectedTimeIntervall}"></ComboBox>
+                            <Button Content="Subscribe сandles" Command="{Binding CandleViewModel.SubscribeCandles}" Background="Bisque"></Button>
+                            <Button Content="Unsubscribe сandles" Command="{Binding CandleViewModel.UnsubscribeCandles}" Background="Bisque"></Button>
+                        </StackPanel>
+                    </Grid>
+                </TabItem.Content>
             </TabItem>
         </TabControl>
     </Grid>

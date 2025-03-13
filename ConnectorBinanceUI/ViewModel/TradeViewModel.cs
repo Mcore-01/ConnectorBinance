@@ -24,33 +24,47 @@ public class TradeViewModel : INotifyPropertyChanged
         }
     }
 
-    private RelayCommand getTrades;
-    public RelayCommand GetTrades
+    private RelayCommand subscribeTrades = null!;
+    public RelayCommand SubscribeTrades
     {
         get
         {
-            return getTrades ??
-              (getTrades = new RelayCommand(obj =>
+            return subscribeTrades ??
+              (subscribeTrades = new RelayCommand(obj =>
               {
-                  _connectorBinance.NewBuyTrade += trade =>
-                  {
-                      Application.Current.Dispatcher.Invoke(() =>
-                      {
-                          if (Trades.Count > 10)
-                              Trades.RemoveAt(0);
-
-                          Trades.Add(trade);
-                      });
-                  };
                   _connectorBinance.SubscribeTrades(Pair);
               }));
         }
     }
 
-    public TradeViewModel()
+    private RelayCommand unsubscribeTrades = null!;
+
+    public RelayCommand UnsubscribeTrades
     {
-        _connectorBinance = new ConnectorBinance();
-        
+        get
+        {
+            return unsubscribeTrades ??
+              (unsubscribeTrades = new RelayCommand(obj =>
+              {
+                  _connectorBinance.UnsubscribeTrades(Pair);
+              }));
+        }
+    }
+
+
+    public TradeViewModel(ConnectorBinance connector)
+    {
+        _connectorBinance = connector;
+        _connectorBinance.NewBuyTrade += trade =>
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (Trades.Count > 10)
+                    Trades.RemoveAt(0);
+
+                Trades.Add(trade);
+            });
+        };
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
