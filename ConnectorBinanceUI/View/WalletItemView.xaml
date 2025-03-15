@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="ConnectorBinanceUI.View.WalletItemView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ConnectorBinanceUI.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*"></ColumnDefinition>
+            <ColumnDefinition Width="0.3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="0.2*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <DataGrid ItemsSource="{Binding WalletItemViewModel.Wallet}" 
+                  Margin="0 0 10 0"
+                  Grid.Column="0"
+                  VerticalScrollBarVisibility="Visible"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  SelectedItem="{Binding WalletItemViewModel.SelectedWalletItem}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Валюта" Binding="{Binding Currency}" Width="0.3*"></DataGridTextColumn>
+                <DataGridTextColumn Header="Объем" Binding="{Binding Volume}" Width="0.5*"></DataGridTextColumn>
+                <DataGridTemplateColumn Header="Операции" Width="0.2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Удалить" 
+                            Command="{Binding Path=DataContext.WalletItemViewModel.DeleteWalletItem,       
+                                         RelativeSource= {RelativeSource FindAncestor,
+                                          AncestorType={x:Type DataGrid}}}">
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="1" Margin="0 0 10 0">
+            <Button Content="Добавить валюту" Command="{Binding WalletItemViewModel.AddWalletItem}" Background="Bisque"></Button>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding WalletItemViewModel.ConversionResults}" 
+                  Grid.Column="1"
+                  CanUserAddRows="False"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Валюта" Binding="{Binding Currency}" Width="0.5*"></DataGridTextColumn>
+                <DataGridTextColumn Header="Объем" Binding="{Binding Volume}" Width="*"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Column="1" Grid.Row="2">
+            <Button Content="Конвертировать кошелек" Command="{Binding WalletItemViewModel.ConvertWalletItems}" Background="Bisque"></Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

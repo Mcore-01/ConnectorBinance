@@ -12,6 +12,7 @@ public partial class MainWindow : Window
 {
     private TradeViewModel _tradeViewModel;
     private CandleViewModel _candleViewModel;
+    private WalletItemViewModel _walletItemViewModel;
 
     public MainWindow()
     {
@@ -20,8 +21,13 @@ public partial class MainWindow : Window
         var connector = new ConnectorBinance();
         _tradeViewModel = new TradeViewModel(connector);
         _candleViewModel = new CandleViewModel(connector);
+        _walletItemViewModel = new WalletItemViewModel(connector);
 
-        DataContext = new { TradeViewModel = _tradeViewModel, CandleViewModel = _candleViewModel };
+        DataContext = new { 
+            TradeViewModel = _tradeViewModel, 
+            CandleViewModel = _candleViewModel,
+            WalletItemViewModel = _walletItemViewModel
+        };
     }
 
     private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)

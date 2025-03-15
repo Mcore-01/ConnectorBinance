@@ -10,9 +10,9 @@ namespace ConnectorBinanceUI.ViewModel;
 public class CandleViewModel : INotifyPropertyChanged
 {
     public ObservableCollection<Candle> Candles { get; set; } = new ObservableCollection<Candle>();
+    public List<TimeInterval> TimeIntervals { get; set; }
 
     private ConnectorBinance _connectorBinance;
-    public List<TimeInterval> TimeIntervals { get; set; }
     private string pair = "BTCUSDT";
     public string Pair
     {
@@ -20,7 +20,7 @@ public class CandleViewModel : INotifyPropertyChanged
         set
         {
             pair = value;
-            OnPropertyChanged("Pair");
+            OnPropertyChanged(nameof(Pair));
         }
     }
 
@@ -32,7 +32,7 @@ public class CandleViewModel : INotifyPropertyChanged
         set 
         { 
             selectedTimeInterval = value;
-            OnPropertyChanged("SelectedTimeInterval");
+            OnPropertyChanged(nameof(SelectedTimeInterval));
         }
     }
 
@@ -81,8 +81,6 @@ public class CandleViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public void OnPropertyChanged(string propertyName)
-    {
+    public void OnPropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }

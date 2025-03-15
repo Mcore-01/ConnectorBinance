@@ -20,7 +20,7 @@ public class TradeViewModel : INotifyPropertyChanged
         set 
         { 
             pair = value;
-            OnPropertyChanged("Pair");
+            OnPropertyChanged(nameof(Pair));
         }
     }
 
@@ -69,8 +69,6 @@ public class TradeViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged(string propertyName)
-    {
+    private void OnPropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }

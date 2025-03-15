@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ConnectorBinanceUI"
+        xmlns:local="clr-namespace:ConnectorBinanceUI.View"
         mc:Ignorable="d"
         Title="ConnectorUI" Height="450" Width="1280">
     <Grid Margin="10">
@@ -14,63 +14,27 @@
                 </TabItem.Header>
                 <TabItem.Content>
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <DataGrid ItemsSource="{Binding TradeViewModel.Trades}" 
-                                  Grid.Column="0"
-                                  VerticalScrollBarVisibility="Visible"
-                                  AutoGenerateColumns="False"
-                                  >
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="100"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Pair" Binding="{Binding Pair}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Price" Binding="{Binding Price}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="160"></DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <StackPanel Grid.Column="1">
-                            <TextBox Text="{Binding TradeViewModel.Pair, UpdateSourceTrigger=PropertyChanged}" Background="LightGray"></TextBox>
-                            <Button Content="Subscribe trades" Command="{Binding TradeViewModel.SubscribeTrades}" Background="Bisque"></Button>
-                            <Button Content="Unsubscribe trades" Command="{Binding TradeViewModel.UnsubscribeTrades}" Background="Bisque"></Button>
-                        </StackPanel>
+                        <local:TradeView />
                     </Grid>
                 </TabItem.Content>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <TextBlock>Свечи</TextBlock>
+                    <TextBlock>Свечи WS</TextBlock>
                 </TabItem.Header>
                 <TabItem.Content>
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <DataGrid ItemsSource="{Binding CandleViewModel.Candles}" 
-                  Grid.Column="0"
-                  VerticalScrollBarVisibility="Visible"
-                  AutoGenerateColumns="False"
-                  >
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Pair" Binding="{Binding Pair}" Width="100"></DataGridTextColumn>
-                                <DataGridTextColumn Header="OpenPrice" Binding="{Binding OpenPrice}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="HighPrice" Binding="{Binding HighPrice}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="LowPrice" Binding="{Binding LowPrice}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="ClosePrice" Binding="{Binding ClosePrice}" Width="80"></DataGridTextColumn>
-                                <DataGridTextColumn Header="TotalPrice" Binding="{Binding TotalPrice}" Width="160"></DataGridTextColumn>
-                                <DataGridTextColumn Header="TotalVolume" Binding="{Binding TotalVolume}" Width="160"></DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <StackPanel Grid.Column="1">
-                            <TextBox Text="{Binding CandleViewModel.Pair, UpdateSourceTrigger=PropertyChanged}" Background="LightGray"></TextBox>
-                            <ComboBox ItemsSource="{Binding CandleViewModel.TimeIntervals}" SelectedItem="{Binding CandleViewModel.SelectedTimeIntervall}"></ComboBox>
-                            <Button Content="Subscribe сandles" Command="{Binding CandleViewModel.SubscribeCandles}" Background="Bisque"></Button>
-                            <Button Content="Unsubscribe сandles" Command="{Binding CandleViewModel.UnsubscribeCandles}" Background="Bisque"></Button>
-                        </StackPanel>
+                        <local:CandleView />
+                    </Grid>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock>Конвертер курсов Rest</TextBlock>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <local:WalletItemView />
                     </Grid>
                 </TabItem.Content>
             </TabItem>
