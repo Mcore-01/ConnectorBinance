@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConnectorBinance.Tests\ConnectorBinanceLibrary.Tests.csproj" />
+    <ProjectReference Include="..\TestTrade\ConnectorBinanceLibrary.csproj" />
   </ItemGroup>
 
 </Project>
