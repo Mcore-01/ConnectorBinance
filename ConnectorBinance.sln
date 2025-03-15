@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTrade", "TestTrade\TestTrade.csproj", "{9F212FED-55D8-47E0-9217-F6B3EA8E3669}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectorBinanceLibrary", "TestTrade\ConnectorBinanceLibrary.csproj", "{9F212FED-55D8-47E0-9217-F6B3EA8E3669}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectorBinanceLibrary.Tests", "ConnectorBinance.Tests\ConnectorBinanceLibrary.Tests.csproj", "{4433CCCD-F733-4244-851F-8ABC8EDCF174}"
 EndProject
